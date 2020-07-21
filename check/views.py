@@ -5,21 +5,15 @@ from django.template import loader
 from django.shortcuts import render
 
 from django.db import connection
+from django import forms
 
 from .models import Item
+from .forms import ItemForm
 # Create your views here.
 
 
 def index(request):
     return HttpResponse('<h1>Hello world</h1>')
-
-
-def viewhtml(request):
-    d = {
-        'hour': datetime.now().hour,
-        'message': 'view message',
-    }
-    return render(request, 'check/view.html', d)
 
 
 def saveData(request):
@@ -40,6 +34,11 @@ def getData(request):
 
 
 def sample1(request):
-    d = {'items': Item.objects.all()}
-    print(d)
+    if request.method == 'POST':
+        form = ItemForm(request.POST)
+        item = form.save(commit=False)
+        item.save()
+    else:
+        form = ItemForm()
+    d = {'items': Item.objects.all(), 'form': form}
     return render(request, 'check/sample1.html', d)
